@@ -18,6 +18,7 @@ class Hotel(models.Model):
     )
     address = models.CharField(max_length=255, blank=True)
     rating = models.FloatField(default=0)
+    photos = models.ImageField(upload_to="hotels/", blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -55,7 +56,8 @@ class Room(models.Model):
         blank=True,
         related_name="rooms"
     )
-    
+    photos = models.ImageField(upload_to="rooms/", blank=True, null=True)
+
     def __str__(self):
         return f"{self.hotel.name} - {self.number}"
 
