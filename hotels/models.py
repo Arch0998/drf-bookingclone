@@ -50,13 +50,13 @@ class Room(models.Model):
     )
     price = models.DecimalField(max_digits=8, decimal_places=2)
     is_available = models.BooleanField(default=True)
-    max_guests = models.PositiveIntegerField()
     amenities = models.ManyToManyField(
         "Amenity",
         blank=True,
         related_name="rooms"
     )
     photos = models.ImageField(upload_to="rooms/", blank=True, null=True)
+    max_guests = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.hotel.name} - {self.number}"
