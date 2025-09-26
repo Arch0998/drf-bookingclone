@@ -1,5 +1,10 @@
+from rest_framework.routers import DefaultRouter
+
+from bookings.views import BookingViewSet
+
 app_name = "bookings"
 
-urlpatterns = [
-    # Define your review-related URL patterns here
-]
+router = DefaultRouter()
+router.register("", BookingViewSet, basename="booking")
+
+urlpatterns = router.urls
