@@ -36,7 +36,7 @@ class HotelViewSet(viewsets.ModelViewSet):
             return HotelDetailSerializer
         else:
             return HotelCreateUpdateSerializer
-    
+
     def get_queryset(self):
         queryset = (Hotel.objects.select_related("location", "owner")
                     .prefetch_related("rooms"))
@@ -90,8 +90,10 @@ class HotelViewSet(viewsets.ModelViewSet):
         
         if hotel.owner != request.user:
             return Response(
-                {"detail":
-                     "You do not have permission to add rooms to this hotel."},
+                {
+                    "detail":
+                        "You dont have permission to add rooms to this hotel."
+                },
                 status=status.HTTP_403_FORBIDDEN
             )
         

@@ -7,8 +7,8 @@ from psycopg2 import OperationalError
 
 
 class Command(BaseCommand):
-    help = "Waits for the database to be available."
-    
+    help = "Waits for the database to be available."  # noqa
+
     def handle(self, *args, **options):
         db_host = os.environ["POSTGRES_HOST"]
         db_name = os.environ["POSTGRES_DB"]
