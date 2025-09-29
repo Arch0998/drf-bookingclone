@@ -19,9 +19,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         return request.user.is_staff or obj.user == request.user
 
 
-@extend_schema(
-    tags=["Bookings"]
-)
+@extend_schema(tags=["Bookings"])
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.select_related("user", "room").all()
     serializer_class = BookingSerializer
@@ -58,7 +56,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         summary="Create booking",
         description=(

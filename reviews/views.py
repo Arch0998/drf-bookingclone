@@ -24,7 +24,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
     - When a review is created/updated/deleted, the hotel's average rating
       is recalculated automatically.
     - Rating must be between 1 and 5.
-    """
+    """,
 )
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.select_related("user", "hotel").all()
@@ -34,7 +34,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     filterset_fields = ["hotel", "user", "rating"]
     ordering_fields = ["created_at", "rating"]
     ordering = ["-created_at"]
-    
+
     @extend_schema(
         summary="List reviews",
         description="""
@@ -49,7 +49,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         summary="Retrieve review",
         description="Returns detailed information about a review.",
@@ -57,7 +57,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
+
     @extend_schema(
         summary="Create review",
         description="""
