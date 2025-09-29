@@ -44,14 +44,12 @@ class PaymentViewSet(
         if self.action == "retrieve":
             return PaymentDetailSerializer
         return PaymentSerializer
-    
+
     @extend_schema(
         summary="List payments",
         description="Returns a list of payments for the authenticated user.",
         parameters=[
-            OpenApiParameter(
-                "status", type=str, description="Payment status"
-            ),
+            OpenApiParameter("status", type=str, description="Payment status"),
             OpenApiParameter(
                 "payment_type", type=str, description="Payment type"
             ),
@@ -60,7 +58,7 @@ class PaymentViewSet(
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         summary="Retrieve payment",
         description="Returns detailed information about a payment.",
@@ -96,6 +94,7 @@ class PaymentViewSet(
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=["Payments"])
 class PaymentSuccessView(APIView):
     def get(self, request, *args, **kwargs):
         session_id = request.GET.get("session_id")
@@ -111,6 +110,7 @@ class PaymentSuccessView(APIView):
         return Response({"status": "not found"}, status=404)
 
 
+@extend_schema(tags=["Payments"])
 class PaymentCancelView(APIView):
     def get(self, request, *args, **kwargs):
         session_id = request.GET.get("session_id")

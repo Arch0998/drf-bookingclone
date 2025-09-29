@@ -19,6 +19,9 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         return request.user.is_staff or obj.user == request.user
 
 
+@extend_schema(
+    tags=["Bookings"]
+)
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.select_related("user", "room").all()
     serializer_class = BookingSerializer
@@ -27,7 +30,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     filterset_fields = ["room", "check_in", "check_out"]
     ordering_fields = ["check_in", "check_out", "created_at"]
     ordering = ["-created_at"]
-    
+
     @extend_schema(
         summary="List bookings",
         description="Returns a list of bookings for "
@@ -47,7 +50,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+
     @extend_schema(
         summary="Retrieve booking",
         description="Returns detailed information about a booking.",
