@@ -250,7 +250,11 @@ Framework
 *
 *Database
 **:
-PostgreSQL
+PostgreSQL (
+with
+SQLite
+for
+development)
 -
 *
 *Authentication
@@ -299,7 +303,6 @@ Compose
 Git
 
 ### 1. Clone the Repository
-
 ```bash
 git clone <your-repo-url>
 cd drf-bookingclone
@@ -334,7 +337,6 @@ STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key
 ```
 
 ### 3. Start the Application
-
 ```bash
 # Build and start all services
 docker-compose up --build
@@ -366,13 +368,11 @@ Documentation
 **: http://localhost:8000/api/docs/
 
 ### 4. Create Superuser
-
 ```bash
 docker-compose exec app python manage.py createsuperuser
 ```
 
 ### 5. Load Sample Data (Optional)
-
 ```bash
 # Create comprehensive test data for development/testing
 docker-compose exec app python manage.py seed_all
@@ -572,7 +572,6 @@ Schema
 ### Main Endpoints
 
 #### 👤 User Management
-
 ```
 POST   /users/register/           # User registration
 POST   /users/token/              # Obtain JWT token
@@ -583,7 +582,6 @@ PUT    /users/profile/            # Update user profile
 ```
 
 #### 🏨 Hotel Management
-
 ```
 GET    /hotels/                   # List hotels (with filtering & search)
 POST   /hotels/                   # Create hotel (owners only)
@@ -596,7 +594,6 @@ POST   /hotels/{id}/add-room/     # Add room to hotel (owner only)
 ```
 
 #### 🌍 Reference Data
-
 ```
 GET    /hotels/locations/         # List locations
 GET    /hotels/room-types/        # List room types
@@ -604,7 +601,6 @@ GET    /hotels/amenities/         # List amenities
 ```
 
 #### 🛏️ Room Management
-
 ```
 GET    /rooms/                    # List all rooms
 POST   /rooms/                    # Create room (owners only)
@@ -614,7 +610,6 @@ DELETE /rooms/{id}/               # Delete room (owner only)
 ```
 
 #### 📅 Booking Management
-
 ```
 GET    /bookings/                 # List user's bookings
 POST   /bookings/                 # Create booking
@@ -624,7 +619,6 @@ DELETE /bookings/{id}/            # Cancel booking
 ```
 
 #### 💳 Payment Processing
-
 ```
 GET    /payments/                 # List user's payments
 POST   /payments/                 # Create payment session
@@ -633,7 +627,6 @@ POST   /payments/webhook/         # Stripe webhook endpoint
 ```
 
 #### ⭐ Review System
-
 ```
 GET    /reviews/                  # List reviews
 POST   /reviews/                  # Create review
@@ -735,7 +728,6 @@ data
 storage
 
 ### Development Workflow
-
 ```bash
 # Start services
 docker-compose up
@@ -752,8 +744,6 @@ docker-compose up --build
 # Stop services
 docker-compose down
 ```
-
----
 
 ## 👨‍💼 Admin Interface
 
@@ -913,37 +903,6 @@ API
 abuse
 prevention (
 configurable)
-
----
-
-## 🤝 Contributing
-
-1.
-Fork
-the
-repository
-2.
-Create
-a
-feature
-branch (
-`git checkout -b feature/amazing-feature`)
-3.
-Commit
-your
-changes (
-`git commit -m 'Add amazing feature'`)
-4.
-Push
-to
-the
-branch (
-`git push origin feature/amazing-feature`)
-5.
-Open
-a
-Pull
-Request
 
 ---
 
