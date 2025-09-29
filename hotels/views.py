@@ -14,7 +14,7 @@ from hotels.serializers import (
     RoomCreateUpdateSerializer,
     LocationSerializer,
     RoomTypeSerializer,
-    AmenitySerializer
+    AmenitySerializer,
 )
 
 
@@ -22,7 +22,9 @@ class HotelViewSet(viewsets.ModelViewSet):
     queryset = Hotel.objects.all()
     permission_classes = [IsOwnerOrReadOnly]
     filter_backends = [
-        DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
     ]
     filterset_fields = ["location__city", "location__country"]
     search_fields = ["name", "description", "address"]
@@ -38,9 +40,10 @@ class HotelViewSet(viewsets.ModelViewSet):
             return HotelCreateUpdateSerializer
 
     def get_queryset(self):
-        queryset = (Hotel.objects.select_related("location", "owner")
-                    .prefetch_related("rooms"))
-        
+        queryset = Hotel.objects.select_related(
+            "location", "owner"
+        ).prefetch_related("rooms")
+
         min_rating = self.request.query_params.get("min_rating")
         if min_rating:
             try:
@@ -48,10 +51,10 @@ class HotelViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(rating__gte=min_rating)
             except ValueError:
                 pass
-        
+
         min_price = self.request.query_params.get("min_price")
         max_price = self.request.query_params.get("max_price")
-        
+
         if min_price or max_price:
             price_filter = Q()
             if min_price:
@@ -64,57 +67,56 @@ class HotelViewSet(viewsets.ModelViewSet):
                     price_filter &= Q(rooms__price__lte=float(max_price))
                 except ValueError:
                     pass
-            
+
             if price_filter:
                 queryset = queryset.filter(price_filter).distinct()
-        
+
         return queryset
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-    
+
     @action(detail=True, methods=["get"])
     def rooms(self, request, pk=None):
         hotel = self.get_object()
         rooms = hotel.rooms.all()
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
-    
+
     @action(
         detail=True,
         methods=["post"],
-        permission_classes=[permissions.IsAuthenticated]
+        permission_classes=[permissions.IsAuthenticated],
     )
     def add_room(self, request, pk=None):
         hotel = self.get_object()
-        
+
         if hotel.owner != request.user:
             return Response(
                 {
-                    "detail":
-                        "You dont have permission to add rooms to this hotel."
+                    "detail": "You dont have permission to add rooms to this hotel."
                 },
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
-        
+
         serializer = RoomCreateUpdateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(hotel=hotel)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @action(detail=False, methods=["get"])
     def my_hotels(self, request):
         if not request.user.is_authenticated:
             return Response(
                 {"detail": "Authentication required."},
-                status=status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_401_UNAUTHORIZED,
             )
-        
+
         if request.user.role != "owner":
             return Response(
                 {"detail": "Only hotel owners can view their hotels."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
         hotels = Hotel.objects.filter(owner=request.user)
         serializer = HotelListSerializer(hotels, many=True)
@@ -128,16 +130,17 @@ class RoomViewSet(viewsets.ModelViewSet):
     filterset_fields = ["hotel", "room_type", "is_available"]
     ordering_fields = ["price"]
     ordering = ["price"]
-    
+
     def get_queryset(self):
-        return (Room.objects.select_related("hotel", "room_type")
-                .prefetch_related("amenities"))
-    
+        return Room.objects.select_related(
+            "hotel", "room_type"
+        ).prefetch_related("amenities")
+
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return RoomCreateUpdateSerializer
         return RoomSerializer
-    
+
     def perform_create(self, serializer):
         hotel_id = self.request.data.get("hotel_id")
         if not hotel_id:
@@ -151,7 +154,7 @@ class RoomViewSet(viewsets.ModelViewSet):
                 {"hotel_id": "Invalid hotel ID or you do not own this hotel."}
             )
         serializer.save(hotel=hotel)
-    
+
     def perform_update(self, serializer):
         room = self.get_object()
         if room.hotel.owner != self.request.user:
@@ -159,7 +162,7 @@ class RoomViewSet(viewsets.ModelViewSet):
                 {"detail": "You do not have permission to edit this room."}
             )
         serializer.save()
-    
+
     def perform_destroy(self, instance):
         if instance.hotel.owner != self.request.user:
             raise serializers.ValidationError(

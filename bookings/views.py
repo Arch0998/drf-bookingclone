@@ -22,36 +22,35 @@ class BookingViewSet(viewsets.ModelViewSet):
     filterset_fields = ["room", "check_in", "check_out"]
     ordering_fields = ["check_in", "check_out", "created_at"]
     ordering = ["-created_at"]
-    
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
             return Booking.objects.select_related("user", "room").all()
-        return (Booking.objects.select_related("user", "room")
-                .filter(user=user))
-    
+        return Booking.objects.select_related("user", "room").filter(user=user)
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-    
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         booking = serializer.save(user=request.user)
-        
+
         session_data = create_stripe_session(booking, request=request)
         session_id = session_data.get("session_id")
         session_url = session_data.get("session_url")
         amount = session_data.get("amount")
-        
+
         Payment.objects.create(
             booking=booking,
             amount=amount,
             status=PaymentStatus.PENDING,
             payment_type=PaymentType.PAYMENT,
             session_id=session_id,
-            session_url=session_url
+            session_url=session_url,
         )
-        
+
         headers = self.get_success_headers(serializer.data)
         data = serializer.data.copy()
         data["payment_url"] = session_url

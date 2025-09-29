@@ -6,15 +6,12 @@ class Hotel(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="hotels"
+        related_name="hotels",
     )
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     location = models.ForeignKey(
-        "Location",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="hotels"
+        "Location", on_delete=models.SET_NULL, null=True, related_name="hotels"
     )
     address = models.CharField(max_length=255, blank=True)
     rating = models.FloatField(default=0)
@@ -30,30 +27,23 @@ class Location(models.Model):
 
     class Meta:
         unique_together = ("country", "city")
-    
+
     def __str__(self):
         return f"{self.city}, {self.country}"
 
 
 class Room(models.Model):
     hotel = models.ForeignKey(
-        "Hotel",
-        on_delete=models.CASCADE,
-        related_name="rooms"
+        "Hotel", on_delete=models.CASCADE, related_name="rooms"
     )
     number = models.CharField(max_length=10)
     room_type = models.ForeignKey(
-        "RoomType",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="rooms"
+        "RoomType", on_delete=models.SET_NULL, null=True, related_name="rooms"
     )
     price = models.DecimalField(max_digits=8, decimal_places=2)
     is_available = models.BooleanField(default=True)
     amenities = models.ManyToManyField(
-        "Amenity",
-        blank=True,
-        related_name="rooms"
+        "Amenity", blank=True, related_name="rooms"
     )
     photos = models.ImageField(upload_to="rooms/", blank=True, null=True)
     max_guests = models.PositiveIntegerField(default=1)
@@ -68,7 +58,7 @@ class RoomType(models.Model):
     max_guests = models.PositiveIntegerField()
     size = models.FloatField()
     bed_count = models.PositiveIntegerField()
-    
+
     def __str__(self):
         return self.name
 
@@ -76,6 +66,6 @@ class RoomType(models.Model):
 class Amenity(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
-    
+
     def __str__(self):
         return self.name

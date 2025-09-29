@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("hotels", "0001_initial"),
     ]
-    
+
     operations = [
         migrations.CreateModel(
             name="Amenity",

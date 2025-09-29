@@ -35,10 +35,10 @@ class HotelAdmin(admin.ModelAdmin):
     search_fields = ["name", "description"]
     readonly_fields = ["rating"]
     inlines = [RoomInline]
-    
+
     def rooms_count(self, obj):
         return obj.rooms.count()
-    
+
     rooms_count.short_description = "Rooms"
 
 

@@ -5,28 +5,42 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('payments', '0001_initial'),
+        ("payments", "0001_initial"),
     ]
-    
+
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='payment_type',
-            field=models.CharField(choices=[('PAYMENT', 'PAYMENT'), ('FINE', 'FINE')], default='PAYMENT', max_length=10),
+            model_name="payment",
+            name="payment_type",
+            field=models.CharField(
+                choices=[("PAYMENT", "PAYMENT"), ("FINE", "FINE")],
+                default="PAYMENT",
+                max_length=10,
+            ),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='session_id',
+            model_name="payment",
+            name="session_id",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='session_url',
+            model_name="payment",
+            name="session_url",
             field=models.URLField(blank=True, max_length=512, null=True),
         ),
         migrations.AlterField(
-            model_name='payment',
-            name='status',
-            field=models.CharField(choices=[('PENDING', 'PENDING'), ('PAID', 'PAID'), ('CANCELLED', 'CANCELLED'), ('EXPIRED', 'EXPIRED'), ('FAILED', 'FAILED')], default='PENDING', max_length=20),
+            model_name="payment",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("PENDING", "PENDING"),
+                    ("PAID", "PAID"),
+                    ("CANCELLED", "CANCELLED"),
+                    ("EXPIRED", "EXPIRED"),
+                    ("FAILED", "FAILED"),
+                ],
+                default="PENDING",
+                max_length=20,
+            ),
         ),
     ]

@@ -7,7 +7,11 @@ from rest_framework.views import APIView
 
 from bookings.models import Booking
 from payments.models import Payment, PaymentStatus, PaymentType
-from payments.serializers import PaymentSerializer, PaymentListSerializer, PaymentDetailSerializer
+from payments.serializers import (
+    PaymentSerializer,
+    PaymentListSerializer,
+    PaymentDetailSerializer,
+)
 from payments.stripe_service import create_stripe_session
 
 
@@ -15,19 +19,19 @@ class PaymentViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     queryset = Payment.objects.select_related("booking").all().order_by("-id")
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_serializer_class(self):
         if self.action == "list":
             return PaymentListSerializer
         if self.action == "retrieve":
             return PaymentDetailSerializer
         return PaymentSerializer
-    
+
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         booking_id = request.data.get("booking")
@@ -40,7 +44,7 @@ class PaymentViewSet(
             status=PaymentStatus.PENDING,
             payment_type=payment_type,
             session_url=session_data["session_url"],
-            session_id=session_data["session_id"]
+            session_id=session_data["session_id"],
         )
         serializer = self.get_serializer(payment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

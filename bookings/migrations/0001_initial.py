@@ -7,12 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     initial = True
-    
+
     dependencies = [
         ("hotels", "0002_amenity_roomtype_hotel_rating_room"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
-    
+
     operations = [
         migrations.CreateModel(
             name="Booking",

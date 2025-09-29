@@ -1,7 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from payments.views import PaymentViewSet, PaymentSuccessView, PaymentCancelView
+from payments.views import (
+    PaymentViewSet,
+    PaymentSuccessView,
+    PaymentCancelView,
+)
 
 app_name = "payments"
 

@@ -6,8 +6,10 @@ from payments.models import Payment
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
-    
+    booking = serializers.PrimaryKeyRelatedField(
+        queryset=Booking.objects.all()
+    )
+
     class Meta:
         model = Payment
         fields = [
@@ -25,7 +27,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class PaymentListSerializer(serializers.ModelSerializer):
     booking = serializers.SlugRelatedField(read_only=True, slug_field="id")
-    
+
     class Meta:
         model = Payment
         fields = (

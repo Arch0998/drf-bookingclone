@@ -19,14 +19,19 @@ class RoomTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoomType
         fields = [
-            "id", "name", "description", "max_guests", "size", "bed_count"
+            "id",
+            "name",
+            "description",
+            "max_guests",
+            "size",
+            "bed_count",
         ]
 
 
 class RoomSerializer(serializers.ModelSerializer):
     room_type = RoomTypeSerializer(read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = Room
         fields = [
@@ -49,7 +54,12 @@ class RoomShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = [
-            "id", "number", "room_type_name", "price", "photos", "max_guests"
+            "id",
+            "number",
+            "room_type_name",
+            "price",
+            "photos",
+            "max_guests",
         ]
 
 
@@ -71,19 +81,20 @@ class HotelListSerializer(serializers.ModelSerializer):
             "rooms_count",
             "min_price",
         ]
-    
+
     def get_rooms_count(self, obj):
         return obj.rooms.filter(is_available=True).count()
-    
+
     def get_min_price(self, obj):
-        min_price = (obj.rooms.filter(is_available=True)
-                     .order_by("price").first())
+        min_price = (
+            obj.rooms.filter(is_available=True).order_by("price").first()
+        )
         return min_price.price if min_price else None
 
 
 class HotelCreateUpdateSerializer(serializers.ModelSerializer):
     location_data = serializers.DictField(write_only=True, required=False)
-    
+
     class Meta:
         model = Hotel
         fields = [
@@ -96,27 +107,27 @@ class HotelCreateUpdateSerializer(serializers.ModelSerializer):
             "location_data",
         ]
         read_only_fields = ["id", "rating"]
-    
+
     def create(self, validated_data):
         location_data = validated_data.pop("location_data", None)
-        
+
         if location_data:
             location, created = Location.objects.get_or_create(
                 country=location_data["country"], city=location_data["city"]
             )
             validated_data["location"] = location
-        
+
         return super().create(validated_data)
-    
+
     def update(self, instance, validated_data):
         location_data = validated_data.pop("location_data", None)
-        
+
         if location_data:
             location, created = Location.objects.get_or_create(
                 country=location_data["country"], city=location_data["city"]
             )
             validated_data["location"] = location
-        
+
         return super().update(instance, validated_data)
 
 
@@ -140,7 +151,7 @@ class HotelDetailSerializer(serializers.ModelSerializer):
             "owner_name",
             "reviews_count",
         ]
-    
+
     def get_reviews_count(self, obj):
         return obj.reviews.count()
 
@@ -150,7 +161,7 @@ class RoomCreateUpdateSerializer(serializers.ModelSerializer):
     amenities_ids = serializers.ListField(
         child=serializers.IntegerField(), write_only=True, required=False
     )
-    
+
     class Meta:
         model = Room
         fields = [
@@ -166,41 +177,41 @@ class RoomCreateUpdateSerializer(serializers.ModelSerializer):
             "photos",
         ]
         read_only_fields = ["id", "hotel", "room_type"]
-    
+
     def create(self, validated_data):
         room_type_id = validated_data.pop("room_type_id", None)
         amenities_ids = validated_data.pop("amenities_ids", [])
-        
+
         if room_type_id:
             try:
                 room_type = RoomType.objects.get(id=room_type_id)
                 validated_data["room_type"] = room_type
             except RoomType.DoesNotExist:
                 raise serializers.ValidationError("Invalid room type ID")
-        
+
         room = super().create(validated_data)
-        
+
         if amenities_ids:
             amenities = Amenity.objects.filter(id__in=amenities_ids)
             room.amenities.set(amenities)
-        
+
         return room
-    
+
     def update(self, instance, validated_data):
         room_type_id = validated_data.pop("room_type_id", None)
         amenities_ids = validated_data.pop("amenities_ids", None)
-        
+
         if room_type_id:
             try:
                 room_type = RoomType.objects.get(id=room_type_id)
                 validated_data["room_type"] = room_type
             except RoomType.DoesNotExist:
                 raise serializers.ValidationError("Invalid room type ID")
-        
+
         room = super().update(instance, validated_data)
-        
+
         if amenities_ids is not None:
             amenities = Amenity.objects.filter(id__in=amenities_ids)
             room.amenities.set(amenities)
-        
+
         return room

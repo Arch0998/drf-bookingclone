@@ -19,7 +19,9 @@ class Booking(models.Model):
     check_in = models.DateField()
     check_out = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
-        return (f"Booking {self.id} by {self.user.username} - "
-                f"{self.room.hotel.name} / {self.room.number}")
+        return (
+            f"Booking {self.id} by {self.user.username} - "
+            f"{self.room.hotel.name} / {self.room.number}"
+        )

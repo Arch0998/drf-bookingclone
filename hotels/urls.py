@@ -6,7 +6,7 @@ from hotels.views import (
     RoomViewSet,
     LocationViewSet,
     RoomTypeViewSet,
-    AmenityViewSet
+    AmenityViewSet,
 )
 
 app_name = "hotels"

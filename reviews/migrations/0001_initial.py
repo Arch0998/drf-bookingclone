@@ -7,12 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     initial = True
-    
+
     dependencies = [
         ("hotels", "0003_hotel_photos_room_photos"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
-    
+
     operations = [
         migrations.CreateModel(
             name="Review",
@@ -31,7 +31,9 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "photos",
-                    models.ImageField(blank=True, null=True, upload_to="reviews/"),
+                    models.ImageField(
+                        blank=True, null=True, upload_to="reviews/"
+                    ),
                 ),
                 (
                     "hotel",

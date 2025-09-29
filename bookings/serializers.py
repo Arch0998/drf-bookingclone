@@ -19,7 +19,7 @@ class BookingSerializer(serializers.ModelSerializer):
         queryset=Room.objects.all(), write_only=True, source="room"
     )
     total_price = serializers.SerializerMethodField(read_only=True)
-    
+
     class Meta:
         model = Booking
         fields = [
@@ -33,13 +33,13 @@ class BookingSerializer(serializers.ModelSerializer):
             "total_price",
         ]
         read_only_fields = ["id", "created_at", "user", "room", "total_price"]
-    
+
     def get_total_price(self, obj):
         if obj.check_in and obj.check_out and obj.room:
             days = (obj.check_out - obj.check_in).days
             return days * obj.room.price
         return None
-    
+
     def validate(self, attrs):
         check_in = attrs.get("check_in")
         check_out = attrs.get("check_out")
@@ -59,7 +59,7 @@ class BookingSerializer(serializers.ModelSerializer):
                     "This room is already booked for the selected dates."
                 )
         return attrs
-    
+
     def create(self, validated_data):
         user = self.context["request"].user
         validated_data["user"] = user

@@ -13,10 +13,10 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def create_stripe_session(
-        booking: Booking,
-        payment_type: str = PaymentType.PAYMENT,
-        request: Optional[HttpRequest] = None,
-        fine_amount: Optional[Decimal] = None,
+    booking: Booking,
+    payment_type: str = PaymentType.PAYMENT,
+    request: Optional[HttpRequest] = None,
+    fine_amount: Optional[Decimal] = None,
 ) -> dict[str, Any]:
     """
     Create a Stripe checkout session for a booking.
@@ -36,7 +36,9 @@ def create_stripe_session(
             days = 1
         total_price = booking.room.price * Decimal(days)
         description = f"Room rental for {days} days"
-        product_name = f"Room: {booking.room.number} in {booking.room.hotel.name}"
+        product_name = (
+            f"Room: {booking.room.number} " f"in {booking.room.hotel.name}"
+        )
     elif payment_type == PaymentType.FINE:
         if fine_amount is None:
             raise ValueError("fine_amount is required for FINE payments")
@@ -45,9 +47,9 @@ def create_stripe_session(
         product_name = f"Fine: Room {booking.room.number}"
     else:
         raise ValueError(f"Unsupported payment_type: {payment_type}")
-    
+
     amount_in_cents = int(total_price * 100)
-    
+
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -66,7 +68,7 @@ def create_stripe_session(
             ],
             mode="payment",
             success_url=request.build_absolute_uri(reverse("payments:success"))
-                        + "?session_id={CHECKOUT_SESSION_ID}",
+            + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=request.build_absolute_uri(reverse("payments:cancel")),
         )
         return {

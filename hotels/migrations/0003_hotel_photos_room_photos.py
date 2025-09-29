@@ -7,12 +7,14 @@ class Migration(migrations.Migration):
     dependencies = [
         ("hotels", "0002_amenity_roomtype_hotel_rating_room"),
     ]
-    
+
     operations = [
         migrations.AddField(
             model_name="hotel",
             name="photos",
-            field=models.ImageField(blank=True, null=True, upload_to="hotels/"),
+            field=models.ImageField(
+                blank=True, null=True, upload_to="hotels/"
+            ),
         ),
         migrations.AddField(
             model_name="room",

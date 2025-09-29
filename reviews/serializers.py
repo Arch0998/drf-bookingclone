@@ -23,7 +23,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     hotel_id = serializers.PrimaryKeyRelatedField(
         queryset=Hotel.objects.all(), write_only=True, source="hotel"
     )
-    
+
     class Meta:
         model = Review
         fields = [
@@ -37,23 +37,24 @@ class ReviewSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at", "user", "hotel"]
-    
+
     def validate_rating(self, value):
         if not (1 <= value <= 5):
             raise serializers.ValidationError("Rating must be between 1 - 5.")
         return value
-    
+
     def validate(self, attrs):
         user = self.context["request"].user
         hotel = attrs.get("hotel")
-        if self.instance is None and Review.objects.filter(
-                user=user, hotel=hotel
-        ).exists():
+        if (
+            self.instance is None
+            and Review.objects.filter(user=user, hotel=hotel).exists()
+        ):
             raise serializers.ValidationError(
                 "You have already reviewed this hotel."
             )
         return attrs
-    
+
     def create(self, validated_data):
         validated_data["user"] = self.context["request"].user
         return super().create(validated_data)

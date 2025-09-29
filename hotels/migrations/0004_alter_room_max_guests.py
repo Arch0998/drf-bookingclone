@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("hotels", "0003_hotel_photos_room_photos"),
     ]
-    
+
     operations = [
         migrations.AlterField(
             model_name="room",

@@ -8,10 +8,8 @@ class User(AbstractUser):
         ("owner", "Hotel Owner"),
     )
     role = models.CharField(
-        max_length=10,
-        choices=ROLE_CHOICES,
-        default="guest"
+        max_length=10, choices=ROLE_CHOICES, default="guest"
     )
-    
+
     def __str__(self):
         return f"{self.username} ({self.role})"
