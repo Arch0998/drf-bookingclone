@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Booking
+from bookings.models import Booking
 
 
 @admin.register(Booking)
@@ -17,6 +17,3 @@ class BookingAdmin(admin.ModelAdmin):
     list_filter = ("status", "created_at", "room")
     search_fields = ("user__username", "room__number", "room__hotel__name")
     autocomplete_fields = ("user", "room")
-
-
-# Register your models here.
