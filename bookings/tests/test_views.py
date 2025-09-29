@@ -9,12 +9,22 @@ from hotels.models import Hotel, Room, RoomType, Location
 
 class BookingViewSimpleTest(TestCase):
     def setUp(self):
-        self.owner = get_user_model().objects.create_user(username="owneruser", password="pass")
-        self.user = get_user_model().objects.create_user(username="simpleuser", password="pass")
+        self.owner = get_user_model().objects.create_user(
+            username="owneruser", password="pass"
+        )
+        self.user = get_user_model().objects.create_user(
+            username="simpleuser", password="pass"
+        )
         self.location = Location.objects.create(country="UA", city="Kyiv")
-        self.hotel = Hotel.objects.create(name="Simple Hotel", location=self.location, owner=self.owner)
-        self.room_type = RoomType.objects.create(name="Standard", description="", max_guests=2, size=20, bed_count=1)
-        self.room = Room.objects.create(hotel=self.hotel, number="1", room_type=self.room_type, price=100)
+        self.hotel = Hotel.objects.create(
+            name="Simple Hotel", location=self.location, owner=self.owner
+        )
+        self.room_type = RoomType.objects.create(
+            name="Standard", description="", max_guests=2, size=20, bed_count=1
+        )
+        self.room = Room.objects.create(
+            hotel=self.hotel, number="1", room_type=self.room_type, price=100
+        )
         self.client = APIClient()
     
     def test_booking_create_authenticated(self):

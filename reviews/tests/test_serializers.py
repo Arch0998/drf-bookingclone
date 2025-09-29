@@ -14,7 +14,7 @@ class ReviewSerializerSimpleTest(TestCase):
         self.hotel = Hotel.objects.create(
             name="Test Hotel", location=self.location, owner=self.user
         )
-    
+
     def test_serializer_valid(self):
         data = {"hotel_id": self.hotel.id, "rating": 5, "comment": "Awesome!"}
         request = type("Request", (), {"user": self.user})()
@@ -26,7 +26,11 @@ class ReviewSerializerSimpleTest(TestCase):
         self.assertEqual(review.rating, 5)
     
     def test_serializer_invalid_rating(self):
-        data = {"hotel_id": self.hotel.id, "rating": 10, "comment": "Too high!"}
+        data = {
+            "hotel_id": self.hotel.id,
+            "rating": 10,
+            "comment": "Too high!",
+        }
         request = type("Request", (), {"user": self.user})()
         serializer = ReviewSerializer(data=data, context={"request": request})
         self.assertFalse(serializer.is_valid())

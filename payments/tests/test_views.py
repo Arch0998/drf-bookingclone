@@ -37,7 +37,7 @@ class PaymentViewMockTest(TestCase):
         )
         self.client = APIClient()
         self.client.force_authenticate(user=self.guest)
-    
+
     @patch("payments.views.create_stripe_session")
     def test_create_payment_api(self, mock_create_stripe_session):
         mock_create_stripe_session.return_value = {
@@ -46,9 +46,14 @@ class PaymentViewMockTest(TestCase):
             "amount": 100,
         }
         url = reverse("payments:payment-list")
-        data = {"booking": self.booking.id, "payment_type": PaymentType.PAYMENT}
+        data = {
+            "booking": self.booking.id,
+            "payment_type": PaymentType.PAYMENT,
+        }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["status"], PaymentStatus.PENDING)
         self.assertEqual(response.data["session_id"], "sess_123")
-        self.assertEqual(response.data["session_url"], "https://stripe.com/session/123")
+        self.assertEqual(
+            response.data["session_url"], "https://stripe.com/session/123"
+        )

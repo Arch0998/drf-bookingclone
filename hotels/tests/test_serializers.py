@@ -7,10 +7,14 @@ from hotels.serializers import HotelSerializer
 
 class HotelSerializerSimpleTest(TestCase):
     def setUp(self):
-        self.owner = get_user_model().objects.create_user(username="owneruser", password="pass")
+        self.owner = get_user_model().objects.create_user(
+            username="owneruser", password="pass"
+        )
         self.location = Location.objects.create(country="UA", city="Kyiv")
-        self.hotel = Hotel.objects.create(name="Test Hotel", location=self.location, owner=self.owner)
-    
+        self.hotel = Hotel.objects.create(
+            name="Test Hotel", location=self.location, owner=self.owner
+        )
+
     def test_hotel_serializer_data(self):
         serializer = HotelSerializer(self.hotel)
         data = serializer.data

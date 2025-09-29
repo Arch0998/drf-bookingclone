@@ -8,7 +8,9 @@ from hotels.models import Location
 
 class HotelViewSimpleTest(TestCase):
     def setUp(self):
-        self.owner = get_user_model().objects.create_user(username="owneruser", password="pass", role="owner")
+        self.owner = get_user_model().objects.create_user(
+            username="owneruser", password="pass", role="owner"
+        )
         self.location = Location.objects.create(country="UA", city="Kyiv")
         self.client = APIClient()
     
