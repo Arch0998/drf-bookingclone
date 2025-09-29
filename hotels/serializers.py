@@ -161,6 +161,7 @@ class RoomCreateUpdateSerializer(serializers.ModelSerializer):
     amenities_ids = serializers.ListField(
         child=serializers.IntegerField(), write_only=True, required=False
     )
+    amenities = AmenitySerializer(many=True, read_only=True)
 
     class Meta:
         model = Room
@@ -215,3 +216,9 @@ class RoomCreateUpdateSerializer(serializers.ModelSerializer):
             room.amenities.set(amenities)
 
         return room
+
+
+class HotelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hotel
+        fields = ["id", "name", "location", "owner"]
