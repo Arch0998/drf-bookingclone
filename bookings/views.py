@@ -1,4 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiResponse,
+)
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -22,16 +27,53 @@ class BookingViewSet(viewsets.ModelViewSet):
     filterset_fields = ["room", "check_in", "check_out"]
     ordering_fields = ["check_in", "check_out", "created_at"]
     ordering = ["-created_at"]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return Booking.objects.select_related("user", "room").all()
-        return Booking.objects.select_related("user", "room").filter(user=user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+    
+    @extend_schema(
+        summary="List bookings",
+        description="Returns a list of bookings for "
+                    "the user (or all for staff).",
+        parameters=[
+            OpenApiParameter("room", type=int, description="Room ID"),
+            OpenApiParameter(
+                "check_in", type=str, description="Check-in date (YYYY-MM-DD)"
+            ),
+            OpenApiParameter(
+                "check_out",
+                type=str,
+                description="Check-out date (YYYY-MM-DD)",
+            ),
+        ],
+        responses={200: BookingSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Retrieve booking",
+        description="Returns detailed information about a booking.",
+        responses={200: BookingSerializer},
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Create booking",
+        description=(
+                "Creates a new booking for a room for selected dates. "
+                "The response includes payment_url — a Stripe link for payment."
+        ),
+        request=BookingSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=BookingSerializer,
+                description=(
+                        "Booking created. Additionally, "
+                        "the response includes payment_url "
+                        "— a Stripe payment link."
+                ),
+            )
+        },
+    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -55,3 +97,29 @@ class BookingViewSet(viewsets.ModelViewSet):
         data = serializer.data.copy()
         data["payment_url"] = session_url
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    @extend_schema(
+        summary="Update booking",
+        description="Update booking data (only owner or staff).",
+        request=BookingSerializer,
+        responses={200: BookingSerializer},
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Partially update booking",
+        description="Partially update booking data (only owner or staff).",
+        request=BookingSerializer,
+        responses={200: BookingSerializer},
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Delete booking",
+        description="Delete a booking (only owner or staff).",
+        responses={204: None},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
