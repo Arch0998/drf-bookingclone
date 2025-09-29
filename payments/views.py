@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +16,18 @@ from payments.serializers import (
 from payments.stripe_service import create_stripe_session
 
 
+@extend_schema(
+    tags=["Payments"],
+    summary="API for managing payments.",
+    description="""
+    API for creating, viewing, and listing payments for hotel bookings.
+    - Only authenticated users can access this API.
+    - Payment is created for a booking and a Stripe session is generated.
+    - Payment status can be PENDING, PAID, CANCELLED, EXPIRED, or FAILED.
+    - Payment type can be PAYMENT or FINE.
+    - The session_url is a Stripe link for payment.
+    """,
+)
 class PaymentViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -31,7 +44,40 @@ class PaymentViewSet(
         if self.action == "retrieve":
             return PaymentDetailSerializer
         return PaymentSerializer
-
+    
+    @extend_schema(
+        summary="List payments",
+        description="Returns a list of payments for the authenticated user.",
+        parameters=[
+            OpenApiParameter(
+                "status", type=str, description="Payment status"
+            ),
+            OpenApiParameter(
+                "payment_type", type=str, description="Payment type"
+            ),
+        ],
+        responses={200: PaymentListSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Retrieve payment",
+        description="Returns detailed information about a payment.",
+        responses={200: PaymentDetailSerializer},
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Create payment",
+        description="""
+        Create a new payment for a booking. Generates a Stripe session for
+        payment. Returns payment data including session_url for payment.
+        """,
+        request=PaymentSerializer,
+        responses={201: PaymentSerializer},
+    )
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         booking_id = request.data.get("booking")
