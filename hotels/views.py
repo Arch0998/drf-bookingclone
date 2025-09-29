@@ -163,6 +163,7 @@ class HotelViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="List rooms for hotel",
         description="Returns a list of rooms for the specified hotel.",
+        tags=["Rooms"],
     )
     def rooms(self, request, pk=None):
         hotel = self.get_object()
@@ -174,10 +175,12 @@ class HotelViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         permission_classes=[permissions.IsAuthenticated],
+        url_path="add-room",
     )
     @extend_schema(
         summary="Add room to hotel",
         description="Add a new room to the specified hotel (only owner).",
+        tags=["Rooms"],
     )
     def add_room(self, request, pk=None):
         hotel = self.get_object()
@@ -193,8 +196,8 @@ class HotelViewSet(viewsets.ModelViewSet):
             serializer.save(hotel=hotel)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=["get"])
+    
+    @action(detail=False, methods=["get"], url_path="my-hotels")
     @extend_schema(
         summary="List hotels for current owner",
         description="Returns a list of hotels owned by the current user.",
