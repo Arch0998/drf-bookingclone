@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, status, filters, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -18,6 +19,19 @@ from hotels.serializers import (
 )
 
 
+@extend_schema(
+    tags=["Hotels"],
+    summary="API for hotel management.",
+    description="""
+    API for creating, viewing, updating, and deleting hotels.
+    - Only authenticated users can create hotels. Only owners can edit or
+      delete their hotels.
+    - Supports filtering by city, country, rating, price.
+    - Supports search by name, description, address.
+    - Supports ordering by rating and name.
+    - Custom actions: list rooms for a hotel, add a room, list owner's hotels.
+    """,
+)
 class HotelViewSet(viewsets.ModelViewSet):
     queryset = Hotel.objects.all()
     permission_classes = [IsOwnerOrReadOnly]
@@ -75,8 +89,81 @@ class HotelViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+    
+    @extend_schema(
+        summary="List hotels",
+        description="""
+        Returns a list of hotels with filtering, search, and ordering.
+        """,
+        parameters=[
+            OpenApiParameter(
+                "location__city", type=str, description="City name"
+            ),
+            OpenApiParameter(
+                "location__country", type=str, description="Country name"
+            ),
+            OpenApiParameter(
+                "min_rating", type=float, description="Minimum rating"
+            ),
+            OpenApiParameter(
+                "min_price", type=float, description="Minimum room price"
+            ),
+            OpenApiParameter(
+                "max_price", type=float, description="Maximum room price"
+            ),
+            OpenApiParameter(
+                "search",
+                type=str,
+                description="Search by name, description, address",
+            ),
+            OpenApiParameter(
+                "ordering", type=str, description="Order by rating or name"
+            ),
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Retrieve hotel",
+        description="Returns detailed information about a hotel.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Create hotel",
+        description="Create a new hotel. Only authenticated users can create.",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Update hotel",
+        description="Update hotel data (only owner).",
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Partially update hotel",
+        description="Partially update hotel data (only owner).",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Delete hotel",
+        description="Delete a hotel (only owner).",
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=True, methods=["get"])
+    @extend_schema(
+        summary="List rooms for hotel",
+        description="Returns a list of rooms for the specified hotel.",
+    )
     def rooms(self, request, pk=None):
         hotel = self.get_object()
         rooms = hotel.rooms.all()
@@ -87,6 +174,10 @@ class HotelViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         permission_classes=[permissions.IsAuthenticated],
+    )
+    @extend_schema(
+        summary="Add room to hotel",
+        description="Add a new room to the specified hotel (only owner).",
     )
     def add_room(self, request, pk=None):
         hotel = self.get_object()
@@ -104,6 +195,10 @@ class HotelViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
+    @extend_schema(
+        summary="List hotels for current owner",
+        description="Returns a list of hotels owned by the current user.",
+    )
     def my_hotels(self, request):
         if not request.user.is_authenticated:
             return Response(
@@ -121,6 +216,17 @@ class HotelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+@extend_schema(
+    tags=["Rooms"],
+    summary="API for hotel room management.",
+    description="""
+    API for creating, viewing, updating, and deleting hotel rooms.
+    - Only authenticated users can create rooms. Only hotel owners can edit
+      or delete their rooms.
+    - Supports filtering by hotel, room type, and availability.
+    - Supports ordering by price.
+    """,
+)
 class RoomViewSet(viewsets.ModelViewSet):
     serializer_class = RoomSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -167,8 +273,70 @@ class RoomViewSet(viewsets.ModelViewSet):
                 {"detail": "You do not have permission to delete this room."}
             )
         instance.delete()
+    
+    @extend_schema(
+        summary="List rooms",
+        description="Returns a list of rooms with filtering and ordering.",
+        parameters=[
+            OpenApiParameter("hotel", type=int, description="Hotel ID"),
+            OpenApiParameter(
+                "room_type", type=int, description="Room type ID"
+            ),
+            OpenApiParameter(
+                "is_available", type=bool, description="Is available"
+            ),
+            OpenApiParameter(
+                "ordering", type=str, description="Order by price"
+            ),
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Retrieve room",
+        description="Returns detailed information about a room.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Create room",
+        description="Create a new room. Only hotel owners can create rooms.",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Update room",
+        description="Update room data (only hotel owner).",
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Partially update room",
+        description="Partially update room data (only hotel owner).",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        summary="Delete room",
+        description="Delete a room (only hotel owner).",
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
+@extend_schema(
+    tags=["Locations"],
+    summary="API for hotel locations.",
+    description="""
+    Read-only API for listing and searching hotel locations.
+    - Supports search by country and city.
+    """,
+)
 class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
@@ -176,11 +344,26 @@ class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["country", "city"]
 
 
+@extend_schema(
+    tags=["Room Types"],
+    summary="API for hotel room types.",
+    description="""
+    Read-only API for listing hotel room types.
+    """,
+)
 class RoomTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
 
 
+@extend_schema(
+    tags=["Amenities"],
+    summary="API for hotel amenities.",
+    description="""
+    Read-only API for listing and searching hotel amenities.
+    - Supports search by name.
+    """,
+)
 class AmenityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Amenity.objects.all()
     serializer_class = AmenitySerializer
