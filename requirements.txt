@@ -9,3 +9,5 @@ drf-spectacular==0.28.0
 django-debug-toolbar==6.0.0
 pytest==8.4.2
 pytest-django==4.11.1
+stripe==12.5.1
+python-dotenv==1.1.1
