@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from bookings.models import Booking
@@ -52,6 +53,11 @@ class BookingSerializer(serializers.ModelSerializer):
         check_in = attrs.get("check_in")
         check_out = attrs.get("check_out")
         room = attrs.get("room")
+        today = timezone.now().date()
+        if check_in and check_in < today:
+            raise serializers.ValidationError(
+                {"check_in": "Check-in date cannot be in the past."}
+            )
         if check_in and check_out and check_in >= check_out:
             raise serializers.ValidationError(
                 {"check_out": "The check-out must be later than the check-in."}
