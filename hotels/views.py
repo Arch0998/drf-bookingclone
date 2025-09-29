@@ -93,9 +93,7 @@ class HotelViewSet(viewsets.ModelViewSet):
 
         if hotel.owner != request.user:
             return Response(
-                {
-                    "detail": "You dont have permission to add rooms."
-                },
+                {"detail": "You dont have permission to add rooms."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
