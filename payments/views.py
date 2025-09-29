@@ -58,6 +58,9 @@ class PaymentSuccessView(APIView):
             payment.status = PaymentStatus.PAID
             payment.paid_at = timezone.now()
             payment.save()
+            if payment.booking:
+                payment.booking.status = "CONFIRMED"
+                payment.booking.save()
             return Response({"status": "success"})
         return Response({"status": "not found"}, status=404)
 

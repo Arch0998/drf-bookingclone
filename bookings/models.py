@@ -19,6 +19,16 @@ class Booking(models.Model):
     check_in = models.DateField()
     check_out = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [
+        ("PENDING", "PENDING"),
+        ("CONFIRMED", "CONFIRMED"),
+        ("CANCELLED", "CANCELLED"),
+    ]
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default="PENDING",
+    )
 
     def __str__(self):
         return (

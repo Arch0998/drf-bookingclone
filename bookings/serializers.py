@@ -31,8 +31,16 @@ class BookingSerializer(serializers.ModelSerializer):
             "check_out",
             "created_at",
             "total_price",
+            "status",
         ]
-        read_only_fields = ["id", "created_at", "user", "room", "total_price"]
+        read_only_fields = [
+            "id",
+            "created_at",
+            "user",
+            "room",
+            "total_price",
+            "status",
+        ]
 
     def get_total_price(self, obj):
         if obj.check_in and obj.check_out and obj.room:
